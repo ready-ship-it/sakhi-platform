@@ -1,22 +1,35 @@
 from fastapi import APIRouter
-from app.services.ai_service import get_reply
+from pydantic import BaseModel
 
 router = APIRouter()
 
+# Temporary memory storage
 chat_history = []
 
 
-@router.post("/send")
-def send(message: str):
-    reply = get_reply(message)
-    chat_history.append({"user": message, "ai": reply})
-    return {"reply": reply}
-=======
-from app.schemas.chat import ChatRequest
+class ChatRequest(BaseModel):
+    message: str
+
 
 @router.post("/send")
 def send(data: ChatRequest):
 
-    reply = get_reply(data.message)
+    user_message = data.message
 
-    return {"reply": reply}
+    # Temporary AI response
+    ai_reply = f"Sakhi: I understand. You said: {user_message}"
+
+    chat_history.append({
+        "user": user_message,
+        "ai": ai_reply
+    })
+
+    return {
+        "success": True,
+        "reply": ai_reply
+    }
+
+
+@router.get("/history")
+def history():
+    return chat_history

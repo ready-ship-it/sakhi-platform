@@ -1,47 +1,59 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from app.db import SessionLocal
-from app.utils.security import create_token
+from fastapi import APIRouter
+from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
 
-def db():
-    d = SessionLocal()
-    try:
-        yield d
-    finally:
-        d.close()
-
+# Temporary in-memory users
 users = []
 
-@router.post("/register")
-def register(email: str, password: str):
-    users.append({"email": email, "password": password})
-    return {"message": "registered"}
 
-@router.post("/login")
-def login(email: str, password: str):
-    for u in users:
-        if u["email"] == email and u["password"] == password:
-            return {"token": create_token(1)}
-    return {"error": "invalid"}
-=======
-from app.schemas.auth import RegisterRequest
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
 
 @router.post("/register")
 def register(data: RegisterRequest):
 
-    email = data.email
-    password = data.password
+    # Check if user exists
+    for user in users:
+        if user["email"] == data.email:
+            return {
+                "success": False,
+                "message": "Email already registered"
+            }
 
-    return {"message": "registered"}
+    users.append({
+        "email": data.email,
+        "password": data.password
+    })
 
-from app.schemas.auth import LoginRequest
+    return {
+        "success": True,
+        "message": "User registered successfully"
+    }
+
 
 @router.post("/login")
 def login(data: LoginRequest):
 
-    email = data.email
-    password = data.password
+    for user in users:
+        if (
+            user["email"] == data.email
+            and user["password"] == data.password
+        ):
+            return {
+                "success": True,
+                "message": "Login successful",
+                "email": data.email
+            }
 
-    return {"token": "example"}
+    return {
+        "success": False,
+        "message": "Invalid credentials"
+    }
