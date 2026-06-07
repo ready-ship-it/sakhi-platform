@@ -14,7 +14,6 @@ def db():
 
 users = []
 
-<<<<<<< HEAD
 @router.post("/register")
 def register(email: str, password: str):
     users.append({"email": email, "password": password})
@@ -46,4 +45,3 @@ def login(data: LoginRequest):
     password = data.password
 
     return {"token": "example"}
->>>>>>> 1bdb669 (Initial commit: new)
