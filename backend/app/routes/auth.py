@@ -85,14 +85,14 @@ def login(
         }
 
     token = create_access_token(
-    {
-        "sub": user.email
-    }
-)
+        {
+            "sub": user.email
+        }
+    )
 
-return {
-    "success": True,
-    "access_token": token,
-    "token_type": "bearer",
-    "email": user.email
-}
+    return {
+        "success": True,
+        "access_token": token,
+        "token_type": "bearer",
+        "email": user.email
+    }
