@@ -1,16 +1,13 @@
-from fastapi import APIRouter
-from fastapi import Depends
-
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
 from pydantic import BaseModel
+from passlib.context import CryptContext
 
 from app.database import get_db
 from app.models.user import User
 
-from passlib.context import CryptContext
-
 router = APIRouter()
+
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
@@ -44,13 +41,13 @@ def register(
         }
 
     hashed_password = pwd_context.hash(
-    data.password
-)
+        data.password
+    )
 
-user = User(
-    email=data.email,
-    password=hashed_password
-)
+    user = User(
+        email=data.email,
+        password=hashed_password
+    )
 
     db.add(user)
     db.commit()
@@ -67,26 +64,20 @@ def login(
     db: Session = Depends(get_db)
 ):
 
-   user = db.query(User).filter(
-    User.email == data.email
-).first()
-
-if not user:
-    return {
-        "success": False,
-        "message": "Invalid credentials"
-    }
-
-if not pwd_context.verify(
-    data.password,
-    user.password
-):
-    return {
-        "success": False,
-        "message": "Invalid credentials"
-    }
+    user = db.query(User).filter(
+        User.email == data.email
+    ).first()
 
     if not user:
+        return {
+            "success": False,
+            "message": "Invalid credentials"
+        }
+
+    if not pwd_context.verify(
+        data.password,
+        user.password
+    ):
         return {
             "success": False,
             "message": "Invalid credentials"
