@@ -6,3 +6,5 @@ python-dotenv
 pyjwt
 openai
 python-multipart
+passlib[bcrypt]
+bcrypt
