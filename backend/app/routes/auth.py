@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from passlib.context import CryptContext
+from app.utils.jwt import create_access_token
 
 from app.database import get_db
 from app.models.user import User
@@ -83,8 +84,15 @@ def login(
             "message": "Invalid credentials"
         }
 
-    return {
-        "success": True,
-        "message": "Login successful",
-        "email": user.email
+    token = create_access_token(
+    {
+        "sub": user.email
     }
+)
+
+return {
+    "success": True,
+    "access_token": token,
+    "token_type": "bearer",
+    "email": user.email
+}
