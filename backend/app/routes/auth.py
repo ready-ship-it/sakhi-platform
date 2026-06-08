@@ -1,10 +1,14 @@
 from fastapi import APIRouter
+from fastapi import Depends
+
+from sqlalchemy.orm import Session
+
 from pydantic import BaseModel
 
-router = APIRouter()
+from app.database import get_db
+from app.models.user import User
 
-# Temporary in-memory users
-users = []
+router = APIRouter()
 
 
 class RegisterRequest(BaseModel):
@@ -18,20 +22,28 @@ class LoginRequest(BaseModel):
 
 
 @router.post("/register")
-def register(data: RegisterRequest):
+def register(
+    data: RegisterRequest,
+    db: Session = Depends(get_db)
+):
 
-    # Check if user exists
-    for user in users:
-        if user["email"] == data.email:
-            return {
-                "success": False,
-                "message": "Email already registered"
-            }
+    existing = db.query(User).filter(
+        User.email == data.email
+    ).first()
 
-    users.append({
-        "email": data.email,
-        "password": data.password
-    })
+    if existing:
+        return {
+            "success": False,
+            "message": "Email already registered"
+        }
+
+    user = User(
+        email=data.email,
+        password=data.password
+    )
+
+    db.add(user)
+    db.commit()
 
     return {
         "success": True,
@@ -40,20 +52,24 @@ def register(data: RegisterRequest):
 
 
 @router.post("/login")
-def login(data: LoginRequest):
+def login(
+    data: LoginRequest,
+    db: Session = Depends(get_db)
+):
 
-    for user in users:
-        if (
-            user["email"] == data.email
-            and user["password"] == data.password
-        ):
-            return {
-                "success": True,
-                "message": "Login successful",
-                "email": data.email
-            }
+    user = db.query(User).filter(
+        User.email == data.email,
+        User.password == data.password
+    ).first()
+
+    if not user:
+        return {
+            "success": False,
+            "message": "Invalid credentials"
+        }
 
     return {
-        "success": False,
-        "message": "Invalid credentials"
+        "success": True,
+        "message": "Login successful",
+        "email": user.email
     }
