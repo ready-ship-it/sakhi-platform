@@ -1,7 +1,9 @@
 from jose import jwt
 from datetime import datetime, timedelta
 
-SECRET_KEY = "CHANGE_THIS_TO_LONG_RANDOM_STRING"
+from app.config import settings
+
+SECRET_KEY = settings.JWT_SECRET
 ALGORITHM = "HS256"
 
 
