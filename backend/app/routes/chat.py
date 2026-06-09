@@ -1,10 +1,13 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models.chat_message import ChatMessage
+from app.models.user import User
+from app.utils.auth import get_current_user
 
 router = APIRouter()
-
-# Temporary memory storage
-chat_history = []
 
 
 class ChatRequest(BaseModel):
@@ -12,17 +15,25 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/send")
-def send(data: ChatRequest):
+def send(
+    data: ChatRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
 
-    user_message = data.message
+    ai_reply = (
+        f"Sakhi: I understand. You said: "
+        f"{data.message}"
+    )
 
-    # Temporary AI response
-    ai_reply = f"Sakhi: I understand. You said: {user_message}"
+    chat = ChatMessage(
+        user_id=current_user.id,
+        message=data.message,
+        reply=ai_reply
+    )
 
-    chat_history.append({
-        "user": user_message,
-        "ai": ai_reply
-    })
+    db.add(chat)
+    db.commit()
 
     return {
         "success": True,
@@ -31,5 +42,13 @@ def send(data: ChatRequest):
 
 
 @router.get("/history")
-def history():
-    return chat_history
+def history(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    chats = db.query(ChatMessage).filter(
+        ChatMessage.user_id == current_user.id
+    ).all()
+
+    return chats
