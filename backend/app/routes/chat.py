@@ -17,21 +17,9 @@ class ChatRequest(BaseModel):
 @router.post("/send")
 def send(
     data: ChatRequest,
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-
-    user_email = current_user["sub"]
-
-    user = db.query(User).filter(
-        User.email == user_email
-    ).first()
-
-    if not user:
-        return {
-            "success": False,
-            "message": "User not found"
-        }
 
     user_message = data.message
 
@@ -41,7 +29,7 @@ def send(
     )
 
     chat = ChatMessage(
-        user_id=user.id,
+        user_id=current_user.id,
         message=user_message,
         reply=ai_reply
     )
@@ -57,24 +45,12 @@ def send(
 
 @router.get("/history")
 def history(
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
-    user_email = current_user["sub"]
-
-    user = db.query(User).filter(
-        User.email == user_email
-    ).first()
-
-    if not user:
-        return {
-            "success": False,
-            "message": "User not found"
-        }
-
     chats = db.query(ChatMessage).filter(
-        ChatMessage.user_id == user.id
+        ChatMessage.user_id == current_user.id
     ).all()
 
     return chats
