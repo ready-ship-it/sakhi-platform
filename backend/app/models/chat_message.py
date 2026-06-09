@@ -1,13 +1,19 @@
-from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey
-from sqlalchemy.sql import func
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import Text
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+
+from datetime import datetime
 
 from app.database import Base
 
 
 class ChatMessage(Base):
+
     __tablename__ = "chat_messages"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
 
     user_id = Column(Integer, ForeignKey("users.id"))
 
@@ -17,5 +23,5 @@ class ChatMessage(Base):
 
     created_at = Column(
         DateTime,
-        server_default=func.now()
+        default=datetime.utcnow
     )

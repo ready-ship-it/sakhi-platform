@@ -1,19 +1,15 @@
 from fastapi import FastAPI
-from app.database import Base, engine
 from fastapi.middleware.cors import CORSMiddleware
 
-
-from app.models.user import User
-from app.models.chat import ChatMessage
-from app.models.mood import Mood
-
+from app.database import Base, engine
 
 from app.routes import auth, chat, mood, admin
 
-app = FastAPI(title="Sakhi Backend")
 import app.models
 
+Base.metadata.create_all(bind=engine)
 
+app = FastAPI(title="Sakhi Backend")
 
 app.add_middleware(
     CORSMiddleware,
