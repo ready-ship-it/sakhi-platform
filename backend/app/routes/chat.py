@@ -33,7 +33,7 @@ def send(
     db: Session = Depends(get_db)
 ):
 
-    user_message = data.message
+    ai_reply = get_reply(user_message)
 
     try:
 

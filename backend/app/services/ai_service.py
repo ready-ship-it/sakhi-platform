@@ -1,14 +1,32 @@
-from openai import OpenAI
+import google.generativeai as genai
+
 from app.config import settings
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+genai.configure(
+    api_key=settings.GEMINI_API_KEY
+)
+
+model = genai.GenerativeModel(
+    "gemini-1.5-flash"
+)
+
 
 def get_reply(message):
-    res = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are Sakhi, an emotional support AI for loneliness."},
-            {"role": "user", "content": message}
-        ]
-    )
-    return res.choices[0].message.content
+
+    prompt = f"""
+You are Sakhi, an emotional support AI.
+
+Help users with:
+- loneliness
+- anxiety
+- stress
+- relationships
+- self-esteem
+
+User:
+{message}
+"""
+
+    response = model.generate_content(prompt)
+
+    return response.text
