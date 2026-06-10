@@ -2,24 +2,15 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-import google.generativeai as genai
-
-from app.services.ai_service import get_reply
-
-from app.config import settings
 from app.database import get_db
 from app.models.chat_message import ChatMessage
 from app.models.user import User
 from app.utils.auth import get_current_user
+from app.services.ai_service import get_reply
 
+from app.config import settings
 
-genai.configure(
-    api_key=settings.GEMINI_API_KEY
-)
-
-model = genai.GenerativeModel(
-    "gemini-1.5-flash"
-)
+print("GEMINI KEY:", settings.GEMINI_API_KEY)
 
 router = APIRouter()
 
@@ -35,27 +26,10 @@ def send(
     db: Session = Depends(get_db)
 ):
 
-    ai_reply = get_reply(user_message)
+    user_message = data.message
 
     try:
-
-        prompt = f"""
-You are Sakhi, a compassionate emotional support companion.
-
-Help women with:
-- loneliness
-- anxiety
-- stress
-- relationships
-- self-esteem
-
-User message:
-{user_message}
-"""
-
-        response = model.generate_content(prompt)
-
-        ai_reply = response.text
+        ai_reply = get_reply(user_message)
 
     except Exception as e:
 

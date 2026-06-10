@@ -10,8 +10,25 @@ model = genai.GenerativeModel(
     "gemini-1.5-flash"
 )
 
-def get_reply(message):
 
-    response = model.generate_content(message)
+def get_reply(message: str):
+
+    prompt = f"""
+You are Sakhi, a compassionate emotional support companion.
+
+Help women with:
+- loneliness
+- anxiety
+- stress
+- relationships
+- self-esteem
+
+Be warm, supportive, empathetic and concise.
+
+User message:
+{message}
+"""
+
+    response = model.generate_content(prompt)
 
     return response.text
