@@ -5,6 +5,10 @@ from app.database import Base, engine
 
 from app.routes import auth, chat, mood, admin
 
+from app.config import settings
+
+print("GEMINI_API_KEY =", settings.GEMINI_API_KEY)
+
 import app.models
 
 Base.metadata.create_all(bind=engine)
