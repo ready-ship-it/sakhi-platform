@@ -30,6 +30,8 @@ def send(
 
     user_message = data.message
 
+    try:
+
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -37,11 +39,6 @@ def send(
                 "role": "system",
                 "content": """
 You are Sakhi, a compassionate emotional support companion.
-You help women dealing with loneliness, anxiety, stress,
-relationships, self-esteem and life challenges.
-
-Be warm, empathetic and encouraging.
-Keep responses concise.
 """
             },
             {
@@ -52,6 +49,15 @@ Keep responses concise.
     )
 
     ai_reply = response.choices[0].message.content
+
+except Exception as e:
+
+    print("OPENAI ERROR:", str(e))
+
+    ai_reply = (
+        "I'm having trouble connecting right now. "
+        "Please try again later."
+    )
 
     chat = ChatMessage(
         user_id=current_user.id,
