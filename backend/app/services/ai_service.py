@@ -1,8 +1,5 @@
 import google.generativeai as genai
 
-for m in genai.list_models():
-    print(m.name)
-
 from app.config import settings
 
 genai.configure(
@@ -10,7 +7,7 @@ genai.configure(
 )
 
 model = genai.GenerativeModel(
-    "gemini-pro"
+    "gemini-2.5-flash"
 )
 
 
