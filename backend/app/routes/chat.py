@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-import google.generativeai as genai
+import google.genai
 
 from app.config import settings
 from app.database import get_db
