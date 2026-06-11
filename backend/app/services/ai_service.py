@@ -22,8 +22,6 @@ Your role:
 - Encourage healthy coping
 - Keep responses short (2-5 sentences)
 - Sound natural and conversational
-- Do not sound overly poetic or dramatic
-- Never claim to be a therapist
 - Never diagnose mental health conditions
 
 Previous conversation:
@@ -35,12 +33,6 @@ Current user message:
 Respond warmly and empathetically.
 """
 
-     response = model.generate_content(prompt)
+    response = model.generate_content(prompt)
 
-    if hasattr(response, "text") and response.text:
-        return response.text
-
-    return (
-        "I'm here with you. "
-        "Tell me a little more about how you're feeling."
-    )
+    return response.text
