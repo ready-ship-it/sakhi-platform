@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -7,12 +6,9 @@ from app.models.chat_message import ChatMessage
 from app.models.user import User
 from app.utils.auth import get_current_user
 from app.services.ai_service import get_reply
+from app.schemas.chat import ChatRequest
 
 router = APIRouter()
-
-
-class ChatRequest(BaseModel):
-    message: str
 
 
 @router.post("/send")
@@ -24,8 +20,7 @@ def send(
 
     user_message = data.message
 
-    # Get recent chat history
-    recent_chats = (
+    history_records = (
         db.query(ChatMessage)
         .filter(ChatMessage.user_id == current_user.id)
         .order_by(ChatMessage.id.desc())
@@ -33,23 +28,15 @@ def send(
         .all()
     )
 
-    history = ""
+    history_text = ""
 
-    for chat in reversed(recent_chats):
-        history += (
-            f"User: {chat.message}\n"
-            f"Sakhi: {chat.reply}\n\n"
-        )
+    for chat in reversed(history_records):
+        history_text += f"User: {chat.message}\nSakhi: {chat.reply}\n\n"
 
     try:
-
-        ai_reply = get_reply(
-            message=user_message,
-            history=history
-        )
+        ai_reply = get_reply(user_message, history_text)
 
     except Exception as e:
-
         print("Gemini Error:", e)
 
         ai_reply = (
@@ -81,6 +68,7 @@ def history(
     chats = (
         db.query(ChatMessage)
         .filter(ChatMessage.user_id == current_user.id)
+        .order_by(ChatMessage.created_at.desc())
         .all()
     )
 

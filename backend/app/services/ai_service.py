@@ -13,6 +13,23 @@ model = genai.GenerativeModel(
 
 def get_reply(message, history=""):
 
+    text = message.lower()
+
+    crisis_keywords = [
+        "suicide",
+        "kill myself",
+        "end my life",
+        "self harm",
+        "hurt myself"
+    ]
+
+    if any(word in text for word in crisis_keywords):
+        return (
+            "I'm sorry you're going through so much right now. "
+            "If you feel you may harm yourself, please contact local emergency services "
+            "or a trusted person immediately. You do not have to face this alone."
+        )
+
     prompt = f"""
 You are Sakhi, a compassionate emotional support companion.
 
@@ -22,6 +39,7 @@ Your role:
 - Encourage healthy coping
 - Keep responses short (2-5 sentences)
 - Sound natural and conversational
+- Never claim to be a therapist
 - Never diagnose mental health conditions
 
 Previous conversation:

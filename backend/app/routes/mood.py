@@ -1,73 +1,71 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 from app.database import get_db
-from app.models.chat_message import ChatMessage
+from app.models.mood import Mood
 from app.models.user import User
 from app.utils.auth import get_current_user
 
 router = APIRouter()
 
 
-@router.get("/latest")
-def latest_mood(
+class MoodRequest(BaseModel):
+    mood: str
+
+
+@router.post("/add")
+def add_mood(
+    data: MoodRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
-    last_chat = (
-        db.query(ChatMessage)
-        .filter(ChatMessage.user_id == current_user.id)
-        .order_by(ChatMessage.id.desc())
-        .first()
+    mood = Mood(
+        mood=data.mood,
+        user_id=current_user.id
     )
 
-    if not last_chat:
-        return {
-            "success": False,
-            "message": "No chats found"
-        }
-
-    text = last_chat.message.lower()
-
-    mood = "neutral"
-
-    if any(word in text for word in [
-        "lonely",
-        "alone",
-        "isolated"
-    ]):
-        mood = "lonely"
-
-    elif any(word in text for word in [
-        "sad",
-        "cry",
-        "depressed"
-    ]):
-        mood = "sad"
-
-    elif any(word in text for word in [
-        "anxious",
-        "worried",
-        "panic"
-    ]):
-        mood = "anxious"
-
-    elif any(word in text for word in [
-        "stress",
-        "stressed",
-        "pressure"
-    ]):
-        mood = "stressed"
-
-    elif any(word in text for word in [
-        "happy",
-        "great",
-        "excited"
-    ]):
-        mood = "happy"
+    db.add(mood)
+    db.commit()
 
     return {
         "success": True,
-        "mood": mood
+        "message": "Mood saved"
     }
+
+
+@router.get("/list")
+def mood_list(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    moods = (
+        db.query(Mood)
+        .filter(Mood.user_id == current_user.id)
+        .order_by(Mood.created_at.desc())
+        .all()
+    )
+
+    return moods
+
+
+@router.get("/stats")
+def mood_stats(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    moods = (
+        db.query(Mood)
+        .filter(Mood.user_id == current_user.id)
+        .all()
+    )
+
+    stats = {}
+
+    for mood in moods:
+        stats[mood.mood] = stats.get(mood.mood, 0) + 1
+
+    return stats
