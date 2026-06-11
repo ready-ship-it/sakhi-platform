@@ -7,11 +7,11 @@ genai.configure(
 )
 
 model = genai.GenerativeModel(
-    "gemini-2.5-flash"
+    "models/gemini-2.0-flash"
 )
 
 
-def get_reply(message: str):
+def get_reply(message, history=""):
 
     prompt = f"""
 You are Sakhi, a compassionate emotional support companion.
@@ -26,10 +26,21 @@ Your role:
 - Never claim to be a therapist
 - Never diagnose mental health conditions
 
-User message:
+Previous conversation:
+{history}
+
+Current user message:
 {message}
+
+Respond warmly and empathetically.
 """
 
-    response = model.generate_content(prompt)
+     response = model.generate_content(prompt)
 
-    return response.text
+    if hasattr(response, "text") and response.text:
+        return response.text
+
+    return (
+        "I'm here with you. "
+        "Tell me a little more about how you're feeling."
+    )
