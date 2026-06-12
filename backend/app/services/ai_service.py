@@ -19,13 +19,14 @@ def get_reply(message, history=""):
         "suicide",
         "kill myself",
         "end my life",
+        "want to die",
         "self harm",
         "hurt myself"
     ]
 
     if any(word in text for word in crisis_keywords):
         return (
-            "I'm sorry you're going through so much right now. "
+            "I'm really concerned about your safety. "
             "If you feel you may harm yourself, please contact local emergency services "
             "or a trusted person immediately. You do not have to face this alone."
         )

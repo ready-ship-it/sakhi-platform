@@ -3,9 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 
-from app.routes import auth, chat, mood, admin
-
-from app.config import settings
+from app.routes import auth, chat, mood, admin, reports
 
 import app.models
 
@@ -25,6 +23,7 @@ app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(chat.router, prefix="/chat", tags=["Chat"])
 app.include_router(mood.router, prefix="/mood", tags=["Mood"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
+app.include_router(reports.router, prefix="/reports", tags=["Reports"])
 
 
 @app.get("/")

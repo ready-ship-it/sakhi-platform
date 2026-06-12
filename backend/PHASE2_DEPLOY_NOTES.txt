@@ -1,0 +1,15 @@
+Phase 2 backend updates included:
+- Mood trend endpoint: GET /mood/trend
+- Weekly report endpoint: GET /reports/weekly
+- Daily check-in endpoint: GET /mood/checkin
+- Coping suggestion endpoint: GET /mood/coping
+- Admin analytics: GET /admin/analytics
+- Chat PDF export: GET /chat/export
+- Conversation memory uses last 5 chats ordered by created_at
+- Crisis detection in AI service
+- reportlab added to requirements.txt
+
+After deploying on Railway:
+1. Redeploy the service.
+2. Verify the new routes in /docs.
+3. If Gemini quota is still exhausted, the chat route will fall back to the supportive message.
